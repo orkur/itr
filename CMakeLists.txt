@@ -6,4 +6,4 @@ cmake_minimum_required (VERSION 3.8)
 project ("itr")
 
 # Include sub-projects.
-add_subdirectory ("itr")
+add_subdirectory ("src")

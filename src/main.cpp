@@ -1,7 +1,4 @@
-﻿// itr.cpp : Defines the entry point for the application.
-//
-
-#include "itr.h"
+﻿#include <iostream>
 
 using namespace std;
 
