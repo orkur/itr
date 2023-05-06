@@ -3,7 +3,12 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
+# find required packages
+find_package(SDL2 REQUIRED)
 # Add source to this project's executable.
 add_executable (itr "main.cpp")
+
+# link executable to required libraries
+target_link_libraries(itr ${SDL2_LIBRARIES})
 
 # TODO: Add tests and install targets if needed.
