@@ -4,11 +4,16 @@
 
 MainMenu::MainMenu()
 {
-    MenuItem item;
-    items.resize(menuLabels.size());
+    prepareMenu(menuLabels);
+}
+void MainMenu::prepareMenu(std::vector<std::string> labels)
+{
+    items.resize(labels.size());
     // assign labels to menu items
-    for (int i = 0; i < menuLabels.size(); i++){
-	items.at(i).setLabel(menuLabels.at(i));
+    for (int i = 0; i < labels.size(); i++){
+	items.at(i).setLabel(labels.at(i));
+	// remove highlight from previous menu if exists
+	items.at(i).setHighlight(false);
     }
     // highlight first item by default
     items.at(0).setHighlight(true);
@@ -34,7 +39,38 @@ void MainMenu::goDown()
     {
 	highlightIndex++;
     }
+    else {
+	highlightIndex = 0;
+    }
     items.at(highlightIndex).setHighlight(true);
+    renderText(font);
+    SDL_UpdateWindowSurface(window);
+}
+void MainMenu::select()
+{
+    // TODO: make string and position-independent menu item functions
+    // (chodzi o to zeby jak zmienimy podpis danej opcji w menu albo przeniesiemy ja do innej 
+    // pozycji ta opcja dalej robila to samo)
+    std::string currentLabel = items.at(highlightIndex).label();
+    if(currentLabel == "Options") // options
+    {
+	openOptions();
+    }
+    else if(currentLabel == "Exit") // exit
+    {
+	isRunning = false;
+    }
+    else if(currentLabel == "Go back")
+    {
+	prepareMenu(menuLabels);
+	SDL_RenderClear(renderer);
+        renderText(font);
+    }
+}
+void MainMenu::openOptions()
+{
+    prepareMenu(optionLabels);
+    SDL_RenderClear(renderer);
     renderText(font);
 }
 int MainMenu::renderBackground()
@@ -51,6 +87,7 @@ int MainMenu::renderBackground()
     SDL_SetTextureBlendMode( background, SDL_BLENDMODE_BLEND); // blend text with background
     // render background texture
     SDL_RenderCopy(renderer, background, NULL, NULL);
+    std::cout << "background rendered\n";
     // update to show rendered screen
     //    SDL_RenderPresent(renderer);
     // background = SDL_CreateTexture(context)
@@ -59,6 +96,8 @@ int MainMenu::renderBackground()
 }
 int MainMenu::renderText(TTF_Font* font)
 {
+    SDL_RenderClear(renderer);
+    renderBackground();
     SDL_Surface* text;
     SDL_Color color = {255, 255, 255};
     SDL_Color highlightColor = {255, 0, 0};

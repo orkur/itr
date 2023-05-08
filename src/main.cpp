@@ -57,6 +57,10 @@ void loop()
 		    menu.goUp();
 		    cout << "up" << endl;
 		}
+		else if(code == SDL_SCANCODE_RETURN){
+		    menu.select();
+		    cout << "enter pressed" << endl;
+		}
 	    }
 	}
     }
