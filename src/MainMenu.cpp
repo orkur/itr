@@ -1,9 +1,11 @@
 #include <iostream>
 #include "MainMenu.h"
 #include "Texture.h"
+#include "Window.h"
 
 MainMenu::MainMenu()
 {
+    gfxLabels = {"Eye Candy:", "Fullscreen: " + isFullscreenLabel, "Resolution:", "Back"};
     prepareMenu(menuLabels);
 }
 void MainMenu::prepareMenu(std::vector<std::string> labels)
@@ -19,6 +21,15 @@ void MainMenu::prepareMenu(std::vector<std::string> labels)
     items.at(0).setHighlight(true);
     highlightIndex = 0;
 }
+void MainMenu::refreshGfxMenu()
+{
+    isFullscreenLabel = Window::isFullscreen() ? "Yes" : "No"; 
+    gfxLabels.at(1) = "Fullscreen: " + isFullscreenLabel;
+    resolutionLabel = Window::resolutionLabel();
+    gfxLabels.at(2) = "Resolution: " + resolutionLabel;
+    openOptions(gfxLabels);
+    getResIndex();
+}
 void MainMenu::goUp()
 {
     items.at(highlightIndex).setHighlight(false);
@@ -30,6 +41,7 @@ void MainMenu::goUp()
 	highlightIndex = items.size() - 1;
     }
     items.at(highlightIndex).setHighlight(true);
+    currentLabel = items.at(highlightIndex).label();
     renderText(font);
 }
 void MainMenu::goDown()
@@ -43,33 +55,111 @@ void MainMenu::goDown()
 	highlightIndex = 0;
     }
     items.at(highlightIndex).setHighlight(true);
+    currentLabel = items.at(highlightIndex).label();
     renderText(font);
-    SDL_UpdateWindowSurface(window);
+}
+void MainMenu::goLeft()
+{
+    if(labelContains("Resolution"))
+    {
+    if(m_resIndex > 0 ) {
+	m_resIndex--;
+    }
+    resolutionLabel = resolutionLabels.at(m_resIndex);
+    items.at(highlightIndex).setLabel("Resolution: " + resolutionLabel);
+    currentLabel = gfxLabels.at(2);
+    SDL_RenderClear(renderer);
+    renderText(font);
+    }
+}
+void MainMenu::goRight()
+{
+    if(labelContains("Resolution"))
+    {
+    if(m_resIndex < (resolutionLabels.size() - 1)) {
+	m_resIndex++;
+    }
+    resolutionLabel = resolutionLabels.at(m_resIndex);
+    items.at(highlightIndex).setLabel("Resolution: " + resolutionLabel);
+    currentLabel = gfxLabels.at(2);
+    SDL_RenderClear(renderer);
+    renderText(font);
+    }
+}
+int MainMenu::getResIndex()
+{
+    for(int i = 0; i < resolutionLabels.size(); i++)
+    {
+	currentResLabel = resolutionLabels.at(i);
+	if( currentResLabel == Window::resolutionLabel())
+	{
+	    m_resIndex = i;
+	}
+    }
+    return m_resIndex;
 }
 void MainMenu::select()
 {
     // TODO: make string and position-independent menu item functions
     // (chodzi o to zeby jak zmienimy podpis danej opcji w menu albo przeniesiemy ja do innej 
     // pozycji ta opcja dalej robila to samo)
-    std::string currentLabel = items.at(highlightIndex).label();
-    if(currentLabel == "Options") // options
-    {
-	openOptions();
-    }
-    else if(currentLabel == "Exit") // exit
+    currentLabel = items.at(highlightIndex).label();
+    // open options if player selected options from main menu or if back from submenu has been requested
+    if(currentLabel == "Exit") // exit
     {
 	isRunning = false;
     }
+    else if(currentLabel == "Options" || currentLabel == "Back")
+    {
+	openOptions(optionLabels);
+    }
     else if(currentLabel == "Go back")
     {
-	prepareMenu(menuLabels);
-	SDL_RenderClear(renderer);
-        renderText(font);
+	openOptions(menuLabels);
+    }
+    else if(currentLabel == "GFX options")
+    {
+	refreshGfxMenu();
+    }
+    else if(labelContains("Fullscreen"))
+    {
+	Window::changeFullscreen();
+	// replace Fullscreen value
+	isFullscreenLabel = Window::isFullscreen() ? "Yes" : "No"; 
+	gfxLabels.at(1) = "Fullscreen: " + isFullscreenLabel;
+	// redraw menu
+	openOptions(gfxLabels);
+    }
+    else if(labelContains("Resolution"))
+    {
+	std::string widthString;
+	std::string heightString;
+	int newWidth;
+	int newHeight;
+	for(int i = 0; i < resolutionLabel.size(); i++) {
+	    // get width and height from resolution string
+	    if(resolutionLabel.at(i) == 'x') {
+		widthString = resolutionLabel.substr(0, i);
+		heightString = resolutionLabel.substr(i + 1, resolutionLabel.size());
+		//convert to int
+		newWidth = stoi(widthString);
+		newHeight = stoi(heightString);
+	    }
+	}
+	Window::changeRes(newWidth, newHeight);
+        // resolutionLabel = Window::resolutionLabel();
+	// gfxLabels.at(2) = "Resolution: " + resolutionLabel;
+	// openOptions(gfxLabels);
     }
 }
-void MainMenu::openOptions()
+bool MainMenu::labelContains(const std::string &query)
 {
-    prepareMenu(optionLabels);
+    m_labelContains = currentLabel.find(query) != std::string::npos;
+    return m_labelContains;
+}
+void MainMenu::openOptions(const std::vector<std::string> &labels)
+{
+    prepareMenu(labels);
     SDL_RenderClear(renderer);
     renderText(font);
 }
@@ -87,7 +177,6 @@ int MainMenu::renderBackground()
     SDL_SetTextureBlendMode( background, SDL_BLENDMODE_BLEND); // blend text with background
     // render background texture
     SDL_RenderCopy(renderer, background, NULL, NULL);
-    std::cout << "background rendered\n";
     // update to show rendered screen
     //    SDL_RenderPresent(renderer);
     // background = SDL_CreateTexture(context)

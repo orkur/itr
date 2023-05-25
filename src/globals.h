@@ -1,4 +1,3 @@
-//#pragma once
 #include <SDL2/SDL.h> 
 #include <SDL2/SDL_ttf.h>
 
@@ -8,6 +7,5 @@ extern bool isRunning;
 extern SDL_Window *window; // Main window pointer
 extern SDL_Renderer *renderer;
 extern SDL_DisplayMode displayMode;
-//extern SDL_GLContext context = nullptr;
 extern TTF_Font* font;
 

@@ -13,13 +13,26 @@ public:
     std::vector<MenuItem> items;
     void goUp();
     void goDown();
+    void goLeft();
+    void goRight();
     void select();
 private:
-    int highlightIndex;
-    void openOptions();
+    std::string currentLabel;
+    bool labelContains(const std::string &query);
+    void openOptions(const std::vector<std::string> &labels);
     void prepareMenu(std::vector<std::string> labels);
+    void refreshGfxMenu();
+    int getResIndex();
+    int m_resIndex;
+    int highlightIndex;
     const std::vector<std::string> menuLabels = {"Start game", "Load replay", "Instructions", "Options", "Exit"};
     const std::vector<std::string> optionLabels = {"Game options", "GFX options", "Sound options", "Controls", "Go back"};
+    std::vector<std::string> gfxLabels;
+    const std::vector<std::string> resolutionLabels = {"640x480", "800x600", "1280x720", "1920x1080"};
+    std::string isFullscreenLabel;
+    std::string resolutionLabel;
+    std::string currentResLabel;
+    bool m_labelContains;
     // std::vector<MenuItem> items(menuLabels.size());
 };
 extern MainMenu menu;

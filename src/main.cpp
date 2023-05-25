@@ -7,8 +7,8 @@
 
 using namespace std;
 
-int win_width = 640;
-int win_height = 480;
+int win_width;
+int win_height;
 bool isRunning = true;
 SDL_Renderer *renderer = nullptr;
 SDL_Window *window = nullptr;
@@ -51,15 +51,18 @@ void loop()
 		SDL_Scancode code = e.key.keysym.scancode;
 		if(code == SDL_SCANCODE_DOWN){
 		    menu.goDown();
-		    cout << "down" << endl;
 		}
 		else if(code == SDL_SCANCODE_UP){
 		    menu.goUp();
-		    cout << "up" << endl;
+		}
+		else if(code == SDL_SCANCODE_LEFT){
+		    menu.goLeft();
+		}
+		else if(code == SDL_SCANCODE_RIGHT){
+		    menu.goRight();
 		}
 		else if(code == SDL_SCANCODE_RETURN){
 		    menu.select();
-		    cout << "enter pressed" << endl;
 		}
 	    }
 	}
